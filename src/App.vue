@@ -15,8 +15,26 @@ const splittedText = computed(() => {
   const text = splitText.value
   const length = splitLength.value
   const array = []
-  for (let i = 0; i < text.length; i += length) {
-    array.push(text.slice(i, i + length))
+  const isLetter = (char: string) => /[a-zA-Zа-яА-ЯёЁ]/.test(char)
+
+  let i = 0
+  while (i < text.length) {
+    let end = i + length
+
+    // If we're not at the end and the fragment ends in the middle of a word,
+    // move the end index to the previous non-letter character
+    if (end < text.length && isLetter(text[end])) {
+      while (end > i && isLetter(text[end - 1])) {
+        end--
+      }
+      if (end === i) {
+        // If no non-letter is found, move to the next non-letter character after the word
+        end = text.slice(i + length).search(/[^a-zA-Zа-яА-ЯёЁ]/) + i + length + 1 || text.length
+      }
+    }
+
+    array.push(text.slice(i, end).trim())
+    i = end
   }
 
   return array
@@ -57,7 +75,7 @@ async function copy() {
     </label>
     <label class="flex flex-col gap-2">
       <span class="text-lg">Split text</span>
-      <textarea v-model="splitText" class="h-40 w-full border" placeholder="Enter text to split"></textarea>
+      <input v-model="splitText" class="w-full border" placeholder="Enter text to split" />
     </label>
     <button @click="copy" class="bg-green-200">Split & Copy</button>
     <div v-if="isCopied" class="bg-green-500 text-white">Copied!</div>
