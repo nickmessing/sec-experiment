@@ -22,10 +22,6 @@ const splittedText = computed(() => {
   return array
 })
 
-const textAsPlain = computed(() => {
-  return new ClipboardItem({ 'text/plain': new Blob([splittedText.value.join('\n')]) })
-})
-
 const textAsExcel = computed(() => {
   let result =
     '<table border="0" cellpadding="0" cellspacing="0" width="4" style="border-collapse:collapse;width:48pt">'
